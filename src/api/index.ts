@@ -1,9 +1,9 @@
 import { Router } from 'express';
-
+import formRouter from './forms/router';
 export default (): Router => {
   const app = Router();
 
-  //TODO: add routes here...
+  app.use("/forms", formRouter)
 
   return app;
 };

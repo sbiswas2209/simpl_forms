@@ -4,6 +4,7 @@ import express from 'express';
 import helmet from 'helmet';
 import config from '../config';
 import routes from '../api';
+import { errorHandler } from '../shared/middleware/errorHandler';
 
 export default ({ app }: { app: express.Application }): void => {
   /**
@@ -33,8 +34,11 @@ export default ({ app }: { app: express.Application }): void => {
   app.use(cors());
 
   // Middleware that transforms the raw string of req.body into json
-  app.use(bodyParser.json());
+  app.use(express.json());
 
   // Load API routes
   app.use(config.api.prefix, routes());
+
+  // Error Handler Middleware
+  app.use(errorHandler);
 };

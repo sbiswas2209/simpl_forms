@@ -1,22 +1,30 @@
-import { Db, MongoClient } from 'mongodb';
-import config from '../config';
+import * as mysql from "mysql";
+import config from "../config";
+import LoggerInstance from "./logger";
 
-let db: Db;
+let connection: mysql.Connection;
 
-async function initializeClient(): Promise<Db> {
-  const client = await MongoClient.connect(config.databaseURL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    ignoreUndefined: true,
-  });
-
-  return client.db();
+function initializeDatabase() {
+  connection = mysql.createConnection({
+    host     : config.rdsHost,
+    user     : config.rdsUsername,
+    password : config.rdsPassword,
+    port     : config.rdsPort,
+    database : config.rdsName
+  })
 }
 
-export default async (): Promise<Db> => {
-  if (!db) {
-    db = await initializeClient();
+export default async (): Promise<mysql.Connection> => {
+  if (!connection) {
+    initializeDatabase();
+    connection.connect(function(err) {
+      if (err) {
+        LoggerInstance.error('Database connection failed: ' + err.stack);
+        return;
+      }
+      LoggerInstance.info("Connection Created");
+    })
   }
 
-  return db;
+  return connection;
 };
